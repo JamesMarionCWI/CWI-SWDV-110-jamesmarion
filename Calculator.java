@@ -32,6 +32,20 @@ public class Calculator {
         }
     }
 
+    public static void printResultsToFile(ArrayList<String> results) {
+        // Append mode on the file writer
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File("results.txt"), true))) {
+            writer.write("===\n");
+            writer.write(new Date() + "\n");
+            for(String result : results) {
+                writer.write(result + "\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Could not operate on file for some reason... ");
+            e.printStackTrace(System.err);
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("Welcome to the calculator!");
         try (Scanner scanner = new Scanner(System.in)) {
@@ -48,6 +62,7 @@ public class Calculator {
             for(String result : results) {
                 System.out.printf("%s%n", result);
             }
+            printResultsToFile(results);
         }
     }
 }
