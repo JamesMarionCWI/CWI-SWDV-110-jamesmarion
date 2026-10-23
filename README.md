@@ -2,12 +2,10 @@
 
 Just a repository for my SWDV-110 assignments
 
-## Important Commands:
-```
-git branch <Branch Name>
-git checkout <Branch Name>
+## Repository Guide
 
-git add <File Name>
-git commit -m "Add in the Hello World java file to the project."
-git push origin <Branch Name>
-```
+### MiniLabs
+Where my daily lab exercises live. These are generally small bite-sized assignments to demonstrate a concept.
+
+### MaxiLabs
+Where my weekly assignments live. These are generally large projects that simulate a real world-scenario.
