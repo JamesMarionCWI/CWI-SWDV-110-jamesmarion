@@ -147,8 +147,14 @@ public final class ContactParser {
     * If there are fewer than 2 characters before the '@' (or no '@'), return the email unchanged.
     */
     public static String maskEmail(String email) {
-        // TODO Part 2 – hint: "*".repeat(n)
-        throw new UnsupportedOperationException("TODO");
+        // Part 2 – hint: "*".repeat(n)
+        int atSignIndex = email.indexOf('@');
+        // Fewer than 2 chars before the @, or @ sign isn't found
+        if (atSignIndex < 2) {
+            return email;
+        }
+        // Build the masked email using first char, asterisks up to the at sign, and then the remainder
+        return email.charAt(0) + ("*".repeat(atSignIndex - 1)) + email.substring(atSignIndex);
     }
 
     /**
