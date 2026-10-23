@@ -112,25 +112,9 @@ public final class ContactParser {
         // Ensure . is not the last character of the domain
         validationResult = validationResult && domainPart.lastIndexOf('.') < domainPart.length() - 1;
 
-        if (validationResult) {
-            // If validation is good so far, continue processing
-            boolean dotFound = false;
-            // Hunt for two dots in a row
-            for (char c : domainPart.toCharArray()) {
-                if (c == '.') {
-                    if (dotFound) {
-                        // A second dot in a row was found, set validation to false
-                        validationResult = false;
-                        break;
-                    }
-                    dotFound = true;
-                } else {
-                    // Not a dot, so reset to hunt for the next potential dot pairing
-                    dotFound = false;
-                }
-            }
-        }
-
+        // Ensure the domain doesn't have two dots in a row
+        validationResult = validationResult && domainPart.indexOf("..") == -1;
+        
         // Return the final result
         return validationResult;
     }
