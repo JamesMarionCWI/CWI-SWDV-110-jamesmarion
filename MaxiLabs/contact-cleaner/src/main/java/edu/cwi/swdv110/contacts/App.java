@@ -15,6 +15,18 @@ public class App {
     }
 
     public static void main(String[] args) throws IOException {
+        // Stretch: **Text block:** print a welcome banner with a text block and `formatted()`.
+        System.out.println("""
+                %s
+                %s
+                %s""".formatted(
+                    "=".repeat(78),
+                    // Center the text manually. Width 60, so String Width + (78-String Width)/2 = 69.
+                    "%69s".formatted("Welcome to the Contact Cleaner program made by James Marion!"),
+                    "=".repeat(78)
+                )
+        );
+
         // Reading files is covered later in Murach – this one line gives you every line of the file.
         List<String> lines = Files.readAllLines(Path.of("contacts.txt"));
         List<Contact> contacts = new ArrayList<>();
