@@ -13,8 +13,28 @@ public final class ContactParser {
     * "" -> ""
     */
     public static String titleCase(String word) {
-        // TODO Part 1 – hint: StringBuilder + setCharAt
-        throw new UnsupportedOperationException("TODO");
+        // Part 1 – hint: StringBuilder + setCharAt
+
+        // Lowercase everything by default
+        StringBuilder sb = new StringBuilder(word.toLowerCase());
+
+        // First letter should always be uppercase
+        boolean uppercaseMe = true;
+        for (int i = 0; i < sb.length(); i++) {
+            char currentChar = sb.charAt(i);
+
+            // Stretch Goal: Apostrophes: make titleCase capitalize after ', so o'neil becomes O'Neil. Then update makeUsername so it still produces poneil.
+            if (currentChar == '-' || currentChar == '\'') {
+                // Uppercase the next letter
+                uppercaseMe = true;
+            } else if (uppercaseMe) {
+                sb.setCharAt(i, Character.toUpperCase(currentChar));
+                // Ensure the next letters aren't uppercased like this one was
+                uppercaseMe = false;
+            }
+        }
+
+        return sb.toString();
     }
 
     /**
