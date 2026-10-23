@@ -48,8 +48,32 @@ public final class ContactParser {
     * "maria garcia-lopez" -> "Maria Garcia-Lopez"
     */
     public static String normalizeName(String raw) {
-        // TODO Part 1 – hint: indexOf(','), substring, split("\\s+"), String.join
-        throw new UnsupportedOperationException("TODO");
+        // Part 1 – hint: indexOf(','), substring, split("\\s+"), String.join
+
+        // Trim and check if empty
+        String resultString = raw.trim();
+        if (resultString.isEmpty()) {
+            return resultString;
+        }
+
+        // Title case every word and also replace all multiple occurrences of spaces
+        String[] individualNames = resultString.split("\\s+");
+        for (int i = 0; i < individualNames.length; i++) {
+            individualNames[i] = ContactParser.titleCase(individualNames[i]);
+        }
+        resultString = String.join(" ", individualNames);
+
+        // Side note: It'd toootally be crazy if someone included multiple commas, riiiiiight...?
+        int commaIndex = resultString.indexOf(',');
+        if (commaIndex >= 0) {
+            // Ensure parts are trimmed
+            String firstPart = resultString.substring(0, commaIndex).trim();
+            String secondPart = resultString.substring(commaIndex + 1).trim();
+            // Swap the parts
+            resultString = secondPart + " " + firstPart;
+        }
+
+        return resultString;
     }
 
     /**
