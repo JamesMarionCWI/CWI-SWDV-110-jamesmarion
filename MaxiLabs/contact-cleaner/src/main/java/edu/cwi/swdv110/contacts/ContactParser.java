@@ -137,8 +137,8 @@ public final class ContactParser {
 
     /** Trims and lowercases an email: " JSmith@Example.COM " -> "jsmith@example.com" */
     public static String normalizeEmail(String email) {
-        // TODO Part 2
-        throw new UnsupportedOperationException("TODO");
+        // Part 2
+        return email.trim().toLowerCase();
     }
 
     /**
