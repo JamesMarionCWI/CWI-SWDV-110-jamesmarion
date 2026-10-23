@@ -55,7 +55,8 @@ public class App {
         // showing the name and the MASKED email, then "N match(es)"
         try (Scanner sc = new Scanner(System.in)) {
             String userInput = getUserInputForSearch(sc);
-            while (!userInput.equals("quit")) {
+            // User testing has identified other potential quit options
+            while (!userInput.equals("quit") && !userInput.equals("\'quit\'")) {
                 int numMatches = 0;
                 for (Contact contact : contacts) {
                     if (contact.name().toLowerCase().contains(userInput)) {
