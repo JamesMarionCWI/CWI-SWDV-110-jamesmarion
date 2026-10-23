@@ -189,8 +189,27 @@ public final class ContactParser {
     * A one-word name uses just that word: "Bob" -> "bob"
     */
     public static String makeUsername(String fullName) {
-        // TODO Part 4
-        throw new UnsupportedOperationException("TODO");
+        // usernames are lowercase
+        fullName = fullName.toLowerCase();
+        // Part 4
+        StringBuilder sb = new StringBuilder();
+        if (fullName.length() > 0) {
+            sb.append(fullName.charAt(0));
+        }
+
+        int indexOfLastWord = fullName.lastIndexOf(' ');
+        // Last word OR if there are no spaces, then continue on with the only name provided
+        indexOfLastWord = indexOfLastWord >= 0 ? indexOfLastWord : 1;
+
+        // Continue up to the end of the last word in the name OR until 8 characters has been reached
+        for (int i = indexOfLastWord; i < fullName.length() && sb.length() < 8; i++) {
+            // Ensure that only letters are included
+            if (Character.isLetter(fullName.charAt(i))) {
+                sb.append(fullName.charAt(i));
+            }
+        }
+
+        return sb.toString();
     }
 
     /**
