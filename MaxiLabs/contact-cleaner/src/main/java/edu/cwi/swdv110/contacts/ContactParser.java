@@ -84,8 +84,55 @@ public final class ContactParser {
     * character, does not end with '.', and never has two dots in a row.
     */
     public static boolean isValidEmail(String email) {
-        // TODO Part 2 – no regular expressions; use indexOf / lastIndexOf / substring
-        throw new UnsupportedOperationException("TODO");
+        // Part 2 – no regular expressions; use indexOf / lastIndexOf / substring
+
+        // Trim the email
+        email = email.trim();
+
+        // Tracks validation progress
+        boolean validationResult = true;
+
+        // Has at least some text
+        validationResult = validationResult && email.length() > 0;
+
+        // Has no spaces in it
+        validationResult = validationResult && email.indexOf(' ') < 0;
+
+        int atSignIndex = email.indexOf('@');
+        // @ sign has at least one character before it
+        validationResult = validationResult && atSignIndex > 0;
+        // Has exactly one @ sign in it
+        validationResult = validationResult && atSignIndex == email.lastIndexOf('@');
+
+        String domainPart = email.substring(atSignIndex + 1);
+        // Ensure the domain part exists
+        validationResult = validationResult && domainPart.length() > 0;
+        // Ensure . is not the first character of the domain
+        validationResult = validationResult && domainPart.indexOf('.') > 0;
+        // Ensure . is not the last character of the domain
+        validationResult = validationResult && domainPart.lastIndexOf('.') < domainPart.length() - 1;
+
+        if (validationResult) {
+            // If validation is good so far, continue processing
+            boolean dotFound = false;
+            // Hunt for two dots in a row
+            for (char c : domainPart.toCharArray()) {
+                if (c == '.') {
+                    if (dotFound) {
+                        // A second dot in a row was found, set validation to false
+                        validationResult = false;
+                        break;
+                    }
+                    dotFound = true;
+                } else {
+                    // Not a dot, so reset to hunt for the next potential dot pairing
+                    dotFound = false;
+                }
+            }
+        }
+
+        // Return the final result
+        return validationResult;
     }
 
     /** Trims and lowercases an email: " JSmith@Example.COM " -> "jsmith@example.com" */
