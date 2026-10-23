@@ -162,8 +162,22 @@ public final class ContactParser {
     * Exactly 10 digits -> "(208) 555-0199". Anything else -> "INVALID".
     */
     public static String formatPhone(String raw) {
-        // TODO Part 3 – hint: loop over toCharArray(), Character.isDigit, StringBuilder
-        throw new UnsupportedOperationException("TODO");
+        // Part 3 – hint: loop over toCharArray(), Character.isDigit, StringBuilder
+        StringBuilder sb = new StringBuilder();
+        for (char c : raw.toCharArray()) {
+            if (Character.isDigit(c)) {
+                // Append only digits
+                sb.append(c);
+            }
+        }
+        if (sb.length() == 11 && sb.charAt(0) == '1') {
+            sb.deleteCharAt(0);
+        }
+        if (sb.length() != 10) {
+            return "INVALID";
+        }
+
+        return String.format("(%s) %s-%s", sb.substring(0, 3), sb.substring(3, 6), sb.substring(6, 10));
     }
 
     /**
