@@ -207,7 +207,7 @@ public final class ContactParser {
         // Part 4 – careful: '|' means something special to split(), so escape it: "\\|"
         String[] lineParts = line.split("\\|");
         if (lineParts.length != 3) {
-            throw new IllegalArgumentException("expected 3 fields but found 1");
+            throw new IllegalArgumentException("expected 3 fields but found " + lineParts.length);
         }
         String name = normalizeName(lineParts[0]);
         if (name.isBlank()) {
