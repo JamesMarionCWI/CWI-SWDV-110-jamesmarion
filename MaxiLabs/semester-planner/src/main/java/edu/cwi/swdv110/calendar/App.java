@@ -54,6 +54,7 @@ public class App {
         // Part 4c: build a ZonedDateTime for the FIRST meeting at the class start time
         // in CAMPUS, and print it for America/Boise, America/Los_Angeles,
         // America/New_York and Asia/Tokyo using DateTools.inZone
+        System.out.println("First class, for online students:");
         ZonedDateTime firstMeeting = ZonedDateTime.of(LocalDateTime.of(sem.nextMeeting(sem.getStart()), sem.getClassStart()), App.CAMPUS);
         ZoneId boise = ZoneId.of("America/Boise");
         System.out.printf("%s %s%n", boise, DateTools.inZone(firstMeeting, boise));
