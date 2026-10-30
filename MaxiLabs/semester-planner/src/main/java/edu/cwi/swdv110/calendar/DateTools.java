@@ -17,7 +17,8 @@ import java.util.Set;
 
 /** Static date helpers used by Semester and App. */
 public final class DateTools {
-    // TODO Part 1: a formatter for "Mon, Jan 11" (pattern letters: EEE, MMM, d)
+    // Part 1: a formatter for "Mon, Jan 11" (pattern letters: EEE, MMM, d)
+    private static final DateTimeFormatter SHORT_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d");
     // TODO Part 2: a formatter for "Mon, Jan 11 at 6:00 PM MST"
     // (hint: literal text goes in single quotes: 'at')
     // TODO Part 2: a List<DateTimeFormatter> of the three accepted input formats:
@@ -33,26 +34,22 @@ public final class DateTools {
 
     /** The nth given weekday of a month, e.g. (2027, JANUARY, 3, MONDAY) -> 2027-01-18 (MLK Day). */
     public static LocalDate nthWeekday(int year, Month month, int n, DayOfWeek day) {
-        // TODO – TemporalAdjusters.dayOfWeekInMonth
-        throw new UnsupportedOperationException("TODO");
+        return LocalDate.of(year, month, 1).with(TemporalAdjusters.dayOfWeekInMonth(n, day));
     }
 
     /** The last given weekday of a month, e.g. (2027, MAY, MONDAY) -> 2027-05-31 (Memorial Day). */
     public static LocalDate lastWeekday(int year, Month month, DayOfWeek day) {
-        // TODO – TemporalAdjusters.lastInMonth
-        throw new UnsupportedOperationException("TODO");
+        return LocalDate.of(year, month, 1).with(TemporalAdjusters.lastInMonth(day));
     }
 
     /** "Mon, Jan 11" */
     public static String formatShort(LocalDate date) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        return date.format(SHORT_FORMAT);
     }
 
     /** True for Saturday and Sunday. */
     public static boolean isWeekend(LocalDate date) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        return date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
 
     // ---------------- Part 2 ----------------
