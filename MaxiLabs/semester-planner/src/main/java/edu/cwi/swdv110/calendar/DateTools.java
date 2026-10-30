@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -18,17 +19,22 @@ import java.util.Set;
 /** Static date helpers used by Semester and App. */
 public final class DateTools {
     // Part 1: a formatter for "Mon, Jan 11" (pattern letters: EEE, MMM, d)
-    private static final DateTimeFormatter SHORT_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d");
-    // TODO Part 2: a formatter for "Mon, Jan 11 at 6:00 PM MST"
+    private static final DateTimeFormatter SHORT_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d", Locale.US);
+    // Part 2: a formatter for "Mon, Jan 11 at 6:00 PM MST"
     // (hint: literal text goes in single quotes: 'at')
-    // TODO Part 2: a List<DateTimeFormatter> of the three accepted input formats:
+    private static final DateTimeFormatter LONG_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d 'at' h:mm a z", Locale.US);
+    // Part 2: a List<DateTimeFormatter> of the three accepted input formats:
     // 2027-03-15 3/15/2027 Mar 15, 2027
     // Always pass Locale.US to ofPattern so "Mon"/"PM" don't change on other computers.
     // For the INPUT formatters use "uuuu" (not "yyyy") for the year and add
     // .withResolverStyle(ResolverStyle.STRICT) – see the Part 2 notes for why.
+    private static final List<DateTimeFormatter> FORMATS_LIST = new ArrayList<>(List.of(
+            DateTimeFormatter.ofPattern("uuuu-MM-d", Locale.US).withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("M/d/uuuu", Locale.US).withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("MMM d, uuuu", Locale.US).withResolverStyle(ResolverStyle.STRICT)
+        ));
 
-    private DateTools() {
-    }
+    private DateTools() { }
 
     // ---------------- Part 1 ----------------
 
@@ -59,9 +65,19 @@ public final class DateTools {
     * Anything else -> IllegalArgumentException("Unrecognized date: " + text).
     * Hint: try each formatter in turn and catch DateTimeParseException.
     */
-    public static LocalDate parseFlexible(String text) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+    public static LocalDate parseFlexible(String text) throws IllegalArgumentException {
+        LocalDate result = null;
+        for(int i = 0; result == null && i < FORMATS_LIST.size(); i++) {
+            try {
+                result = LocalDate.parse(text.trim(), FORMATS_LIST.get(i));
+            } catch (DateTimeParseException ex) {
+                // :')
+            }
+        }
+        if (result == null) {
+            throw new IllegalArgumentException("Unrecognized date: " + text);
+        }
+        return result;
     }
 
     /**
@@ -70,8 +86,15 @@ public final class DateTools {
     * Fri 2027-01-08 + 1 school day -> Mon 2027-01-11
     */
     public static LocalDate addSchoolDays(LocalDate start, int days, Set<LocalDate> holidays) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        int validDayCount = 0;
+        LocalDate endDate = start;
+        while(validDayCount < days) {
+            endDate = endDate.plusDays(1);
+            if(!isWeekend(endDate) && !holidays.contains(endDate)) {
+                validDayCount++;
+            }
+        }
+        return endDate;
     }
 
     /**
@@ -83,14 +106,21 @@ public final class DateTools {
     * a week late -> 50
     * Hint: Duration.between(...).toMinutes()
     */
+    private static int ceilingMinutesToDay(int minutes) {
+        int minutesInADay = 24 * 60; // 1440
+        return (minutes + minutesInADay - 1)/minutesInADay;
+    }
     public static int latePenaltyPercent(LocalDateTime due, LocalDateTime submitted) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        final int MIN_GRADE = 0;
+        final int MAX_GRADE = 50;
+        final int PERCENT_GRADE_FACTOR = 10;
+
+        return Math.min(MAX_GRADE, Math.max(MIN_GRADE, (ceilingMinutesToDay((int)Duration.between(due, submitted).toMinutes()))*PERCENT_GRADE_FACTOR));
     }
 
     /** Converts to another zone and formats: "Tue, Jan 12 at 10:00 AM JST" */
     public static String inZone(ZonedDateTime when, ZoneId zone) {
-        // TODO – withZoneSameInstant
-        throw new UnsupportedOperationException("TODO");
+        // withZoneSameInstant
+        return when.withZoneSameInstant(zone).format(LONG_FORMAT);
     }
 }
