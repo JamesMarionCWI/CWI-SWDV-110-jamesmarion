@@ -82,7 +82,7 @@ public class App {
                         LocalDate nextMeeting = sem.nextMeeting(inputDate);
                         if(nextMeeting != null) {
                             System.out.printf("Next class: %s (week %d)%n", DateTools.formatShort(nextMeeting), sem.weekNumber(nextMeeting));
-                            System.out.printf("Days until the semester ends: %d%n", sem.daysLeft(nextMeeting));
+                            System.out.printf("Days until the semester ends: %d%n", sem.daysLeft(inputDate));
                             LocalDate dueDate = DateTools.addSchoolDays(nextMeeting, 5, sem.getDaysOff());
                             System.out.printf("A lab assigned that day is due %s%n", DateTools.formatShort(dueDate));
                         } else {
