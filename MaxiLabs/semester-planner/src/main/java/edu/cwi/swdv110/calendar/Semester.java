@@ -27,7 +27,13 @@ public class Semester {
     * or if classEnd is not after classStart.
     */
     public Semester(String name, LocalDate start, LocalDate end, Set<DayOfWeek> meetingDays, LocalTime classStart, LocalTime classEnd) {
-        // TODO validate, then assign the fields
+        // validate, then assign the fields
+        if(end.isBefore(start)) {
+            throw new IllegalArgumentException("Error: end is before the start!");
+        }
+        if(classEnd.isBefore(classStart)) {
+            throw new IllegalArgumentException("Error: classEnd is before the classStart!");
+        }
         this.name = name;
         this.start = start;
         this.end = end;
@@ -62,13 +68,20 @@ public class Semester {
 
     /** Adds every date from first to last, INCLUDING both ends. */
     public void addBreak(LocalDate first, LocalDate last) {
-        // TODO
+        for (LocalDate d = first; !d.isAfter(last); d = d.plusDays(1)) {
+            daysOff.add(d);
+        }
     }
 
     /** Every date from start to end (inclusive) that is a meeting day and not a day off. */
     public List<LocalDate> meetingDates() {
-        // TODO
-        return new ArrayList<>();
+        List<LocalDate> meetingDates = new ArrayList<>();
+        for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
+            if(meetingDays.contains(d.getDayOfWeek()) && !daysOff.contains(d)) {
+                meetingDates.add(d);
+            }
+        }
+        return meetingDates;
     }
 
     /**
@@ -77,37 +90,41 @@ public class Semester {
     * then ChronoUnit.WEEKS.between(...) + 1.
     */
     public int weekNumber(LocalDate date) {
-        // TODO
-        return 0;
+        return (int)ChronoUnit.WEEKS.between(start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))) + 1;
     }
 
     /** Length of one class meeting, e.g. 6:00 PM–8:30 PM -> PT2H30M */
     public Duration classLength() {
-        // TODO
-        return Duration.ZERO;
+        return Duration.between(classStart, classEnd);
     }
 
     /** classLength() times the number of meetings. Hint: multipliedBy */
     public Duration totalClassTime() {
-        // TODO
-        return Duration.ZERO;
+        return classLength().multipliedBy(meetingDates().size());
     }
 
     /** First meeting ON or AFTER `from`; null if there are no more meetings. */
     public LocalDate nextMeeting(LocalDate from) {
-        // TODO
-        return null;
+        LocalDate nextMeeting = null;
+        if(from.isBefore(end)) {
+            List<LocalDate> meetingDates = meetingDates();
+            for(LocalDate meetingDate : meetingDates) {
+                if(from.isBefore(meetingDate) || from.isEqual(meetingDate)) {
+                    nextMeeting = meetingDate;
+                    break;
+                }
+            }
+        }
+        return nextMeeting;
     }
 
     /** Period from start to end, e.g. P3M26D */
     public Period length() {
-        // TODO
-        return Period.ZERO;
+        return Period.between(start, end);
     }
 
     /** Days from `from` until the end date; 0 if the semester is already over. */
     public long daysLeft(LocalDate from) {
-        // TODO
-        return 0;
+        return Math.max(0, ChronoUnit.DAYS.between(from, end));
     }
 }
