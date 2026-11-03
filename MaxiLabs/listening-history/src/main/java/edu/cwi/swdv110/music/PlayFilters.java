@@ -10,25 +10,29 @@ public final class PlayFilters {
 
     /** Matches plays by this user, ignoring case. */
     public static Predicate<Play> byUser(String user) {
-        // TODO Part 2
-        throw new UnsupportedOperationException("TODO");
+        // Part 2
+        return play -> play.user().equalsIgnoreCase(user);
     }
 
     /** Matches plays in this genre, ignoring case. */
     public static Predicate<Play> byGenre(String genre) {
-        // TODO Part 2
-        throw new UnsupportedOperationException("TODO");
+        // Part 2
+        return play -> play.genre().equalsIgnoreCase(genre);
     }
 
     /** Matches plays from `from` through `to`, inclusive on both ends. */
     public static Predicate<Play> between(LocalDate from, LocalDate to) {
-        // TODO Part 2
-        throw new UnsupportedOperationException("TODO");
+        // Part 2
+        return play -> (
+            play.date().isAfter(from) || play.date().isEqual(from) // inclusive on both ends
+        ) && (
+            play.date().isBefore(to) || play.date().isEqual(to) // inclusive on both ends
+        );
     }
 
     /** A "skip" is any play shorter than 30 seconds. */
     public static Predicate<Play> skipped() {
-        // TODO Part 2
-        throw new UnsupportedOperationException("TODO");
+        // Part 2
+        return play -> play.seconds() < 30;
     }
 }
