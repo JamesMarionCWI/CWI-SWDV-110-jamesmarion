@@ -117,7 +117,7 @@ public final class MusicStats {
         // reuse PlayFilters.byUser and PlayFilters.skipped
         List<Play> playsByUser = plays.stream().filter(PlayFilters.byUser(user)).toList();
         
-        if(playsByUser.size() == 0) {
+        if(playsByUser.isEmpty()) {
             // Keeps us from dividing by 0 later!
             return 0.0;
         }

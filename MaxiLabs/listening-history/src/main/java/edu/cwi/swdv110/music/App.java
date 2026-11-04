@@ -106,7 +106,7 @@ public class App {
             String userInput = sc.nextLine().trim().toLowerCase();
             while(!userInput.equals("quit")) {
                 List<Play> userPlays = plays.stream().filter(PlayFilters.byUser(userInput)).toList();
-                if(userPlays.size() > 0) {
+                if(!userPlays.isEmpty()) {
                     Optional<String> topUserGenre = MusicStats.topGenre(plays, userInput);
                     long totalMinutes = MusicStats.totalMinutes(plays, PlayFilters.byUser(userInput));
                     if(!topUserGenre.isPresent()) {
