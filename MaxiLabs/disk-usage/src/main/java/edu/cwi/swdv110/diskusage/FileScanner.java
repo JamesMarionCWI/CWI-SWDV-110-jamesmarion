@@ -35,13 +35,43 @@ public final class FileScanner {
      * Recursive case: a folder's size is the sum of the totalSize of each child.
      */
     public static long totalSize(File f) {
-        // TODO
+        // Base case:      a file's size is its length().
+        if(f.isFile()) {
+            return f.length();
+        }
+        // Recursive case: a folder's size is the sum of the totalSize of each child.
+        if(f.isDirectory()) {
+            int totalSizeOfFolder = 0;
+            for (File childFile : sortedChildren(f)) {
+                totalSizeOfFolder += totalSize(childFile);
+            }
+            return totalSizeOfFolder;
+        }
+        // Extra case: if something is somehow neither a file nor a folder
+        // And yes, the only piece of tech I own is a printer
+        // And I have something to shoot the printer if it makes a funny noise >.>
         return 0;
     }
 
     /** Number of FILES (not folders) in f and everything under it. A single file counts as 1. */
+    /**
+     * Base case:      a file counts as 1
+     * Recursive case: a folder's file count is the sum of each file child
+     */
     public static int countFiles(File f) {
-        // TODO
+        // Base case:      a file counts as 1
+        if(f.isFile()) {
+            return 1;
+        }
+        // Recursive case: a folder's file count is the sum of each file child
+        if(f.isDirectory()) {
+            int numberFilesInFolder = 0;
+            for (File childFile : sortedChildren(f)) {
+                numberFilesInFolder += countFiles(childFile);
+            }
+            return numberFilesInFolder;
+        }
+        // Extra case: if something is somehow neither a file nor a folder
         return 0;
     }
 
@@ -51,8 +81,35 @@ public final class FileScanner {
      *   a folder that only contains files     -> 1
      *   otherwise                             -> 1 + the deepest child
      */
+    /**
+     * Base case:      a file or an empty folder counts as 0
+     * Recursive case: a folder's depth is the largest depth out of each child plus itself
+     */
     public static int maxDepth(File f) {
-        // TODO
+        if(f.isFile()) {
+            // Files don't increase the depth
+            return 0;
+        }
+        if(f.isDirectory()) {
+            // Empty folder doesn't increase the depth, so by default 0 until proven otherwise
+            int maximumDepthFoundInFolder = 0;
+            File[] childFiles = sortedChildren(f);
+            // If a child has a larger depth, set the depth to that
+            for (File childFile : childFiles) {
+                int depthOfThisChild = maxDepth(childFile);
+                if(maximumDepthFoundInFolder < depthOfThisChild) {
+                    maximumDepthFoundInFolder = depthOfThisChild;
+                }
+            }
+            // A folder that contains stuff counts as 1 by default
+            // It's odd that the test cases don't test for empty folder inside of empty folder
+            // Personally, empty folders should count because of that, but it is what it is
+            if(childFiles.length > 0) {
+                maximumDepthFoundInFolder += 1;
+            }
+            return maximumDepthFoundInFolder;
+        }
+        // Extra case: if something is somehow neither a file nor a folder
         return 0;
     }
 
