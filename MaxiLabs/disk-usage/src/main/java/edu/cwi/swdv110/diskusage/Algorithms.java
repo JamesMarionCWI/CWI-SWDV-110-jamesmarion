@@ -25,7 +25,7 @@ public final class Algorithms {
     /** Returns a NEW sorted list (don't modify the input). O(n²). */
     public static <T> List<T> selectionSort(List<T> list, Comparator<T> cmp) {
         List<T> a = new ArrayList<>(list);
-        
+
         for (int i = 0; i < a.size() - 1; i++) {
             int minIndex = i;
             // find the smallest remaining item
@@ -49,8 +49,9 @@ public final class Algorithms {
      */
     public static <T> List<T> mergeSort(List<T> list, Comparator<T> cmp) {
         List<T> a = new ArrayList<>(list);
-        
-        if (a.size() < 2) return a; // base case
+
+        if (a.size() < 2)
+            return a; // base case
         int mid = a.size() / 2;
         List<T> left = a.subList(0, mid);
         List<T> right = a.subList(mid, a.size());
@@ -67,8 +68,10 @@ public final class Algorithms {
         while (i < left.size() && j < right.size()) {
             a.add(k++, (cmp.compare(left.get(i), right.get(j)) <= 0 ? left.get(i++) : right.get(j++)));
         }
-        while (i < left.size()) a.add(k++, left.get(i++));
-        while (j < right.size()) a.add(k++, right.get(j++));
+        while (i < left.size())
+            a.add(k++, left.get(i++));
+        while (j < right.size())
+            a.add(k++, right.get(j++));
 
         return a;
     }
@@ -82,25 +85,32 @@ public final class Algorithms {
         return binarySearch(sortedByPath, path, 0, sortedByPath.size() - 1);
     }
 
+    /**
+     * Base case:      low index is higher than high index
+     *                 OR the element at the middle index matches the target
+     * Recursive case: No match and still have halves to search
+     *                 Sorted element is less than middle, search bottom half with mid as the upper bound
+     *                 Sorted element is greater than middle, search top half with mid as the lower bound
+     */
     private static int binarySearch(List<FileInfo> a, String path, int low, int high) {
         // base case: low > high
-        if(low > high) {
+        if (low > high) {
             return -1;
         }
 
-        int middleIndex = (low+high)/2;
-        if(a.get(middleIndex).path().equals(path)) {
+        int middleIndex = (low + high) / 2;
+        if (a.get(middleIndex).path().equals(path)) {
             return middleIndex;
         }
 
         // Sadly need another check to find our missing element, sooo it's time to use recursion
-        if(path.compareTo(a.get(middleIndex).path()) > 0) {
+        if (path.compareTo(a.get(middleIndex).path()) > 0) {
             // If the target element is bigger than the currently found item
             // Search the larger half
-            return binarySearch(a, path, middleIndex+1, high);
+            return binarySearch(a, path, middleIndex + 1, high);
         } else {
             // Otherwise search the lower half
-            return binarySearch(a, path, low, middleIndex-1);
+            return binarySearch(a, path, low, middleIndex - 1);
         }
     }
 
