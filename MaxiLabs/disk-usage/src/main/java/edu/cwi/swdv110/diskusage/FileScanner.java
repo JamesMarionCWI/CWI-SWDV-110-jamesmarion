@@ -122,19 +122,29 @@ public final class FileScanner {
      */
     public static List<FileInfo> listAll(File root) {
         List<FileInfo> result = new ArrayList<>();
-        // TODO call collect(...) to fill result
+        collect(root, "", result);
         return result;
     }
 
     /** Recursive helper: adds the files in dir to out. prefix is the path so far, e.g. "docs/img/". */
+    /**
+     * Base case:      a file ends the path and gets added to out
+     * Recursive case: a folder that needs to look through all its file children
+     */
     private static void collect(File dir, String prefix, List<FileInfo> out) {
-        // TODO
+        for (File childFile : sortedChildren(dir)) {
+            if(childFile.isFile()) {
+                out.add(new FileInfo(prefix + childFile.getName(), childFile.length()));
+            } else if(childFile.isDirectory()) {
+                collect(childFile, prefix + childFile.getName() + "/", out);
+            }
+        }
     }
 
     /** Files whose name ends with "." + ext (ignore case), in listAll order. */
     public static List<FileInfo> findByExtension(File root, String ext) {
-        // TODO
-        return new ArrayList<>();
+        String lowerCaseExt = ext.toLowerCase();
+        return listAll(root).stream().filter(file -> file.path().toLowerCase().endsWith(lowerCaseExt)).toList();
     }
 
     /**
@@ -148,9 +158,21 @@ public final class FileScanner {
         return humanSize(bytes, 0);
     }
 
+    /**
+     * Base case:      a number < 1024 of the current unit
+     * Recursive case: a number >= 1024, move to the next unit
+     */
     private static String humanSize(double value, int unit) {
-        // TODO – "%.0f %s" for bytes, "%.1f %s" for every other unit
-        return "";
+        // "%.0f %s" for bytes, "%.1f %s" for every other unit
+        if(value < 1024) {
+            if(unit == 0) {
+                return String.format(Locale.US, "%.0f %s", value, UNITS[unit]);
+            } else {
+                return String.format(Locale.US, "%.1f %s", value, UNITS[unit]);
+            }
+        } else {
+            return humanSize(value / 1024, unit + 1);
+        }
     }
 
     // ---------------- Part 3 ----------------
