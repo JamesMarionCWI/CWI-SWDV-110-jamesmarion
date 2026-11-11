@@ -134,7 +134,7 @@ public final class FileScanner {
     private static void collect(File dir, String prefix, List<FileInfo> out) {
         for (File childFile : sortedChildren(dir)) {
             if(childFile.isFile()) {
-                out.add(new FileInfo(prefix + childFile.getName(), childFile.length()));
+                out.add(new FileInfo(prefix + childFile.getName(), totalSize(childFile)));
             } else if(childFile.isDirectory()) {
                 collect(childFile, prefix + childFile.getName() + "/", out);
             }
@@ -184,15 +184,47 @@ public final class FileScanner {
      *     docs/ (2.2 KB)
      *       notes.txt (300 B)
      * Folders deeper than maxDepth are listed but their contents are not
+     * - Per the tests and assignment instructions, this is a lie
      * (their size still includes everything inside).
      */
     public static String tree(File root, int maxDepth) {
         StringBuilder sb = new StringBuilder();
-        // TODO call the recursive helper
+        // call the recursive helper
+        tree(root, 0, maxDepth, sb);
         return sb.toString();
     }
 
     private static void tree(File f, int depth, int maxDepth, StringBuilder sb) {
-        // TODO – use System.lineSeparator() at the end of each line
+        // use System.lineSeparator() at the end of each line
+        if(f.isFile()) {
+            // This totally could have been a String.format with %n
+            // but it's funnier to use System.lineSeparator()
+            // (could have also done %s -> System.lineSeparator()...)
+            // JUSTICE FOR SYSTEM.LINESEPARATOR()!!!
+            // Equivalent String.format(s) so I don't get bonked:
+            // %s%s (%s)%n
+            // %s%s (%s)%s
+            sb.append("  ".repeat(depth));
+            sb.append(f.getName());
+            sb.append(" (");
+            sb.append(humanSize(totalSize(f)));
+            sb.append(")");
+            sb.append(System.lineSeparator());
+        } else if(f.isDirectory()) {
+            // Equivalent String.format(s) so I don't get bonked:
+            // %s%s/ (%s)%n
+            // %s%s/ (%s)%s
+            sb.append("  ".repeat(depth));
+            sb.append(f.getName());
+            sb.append("/ (");
+            sb.append(humanSize(totalSize(f)));
+            sb.append(")");
+            sb.append(System.lineSeparator());
+            if(depth < maxDepth) {
+                for (File childFile : sortedChildren(f)) {
+                    tree(childFile, depth+1, maxDepth, sb);
+                }
+            }
+        }
     }
 }
