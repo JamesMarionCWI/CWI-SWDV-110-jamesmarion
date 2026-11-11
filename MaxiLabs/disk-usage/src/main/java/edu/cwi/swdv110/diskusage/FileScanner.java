@@ -36,12 +36,12 @@ public final class FileScanner {
      */
     public static long totalSize(File f) {
         // Base case:      a file's size is its length().
-        if(f.isFile()) {
+        if (f.isFile()) {
             return f.length();
         }
         // Recursive case: a folder's size is the sum of the totalSize of each child.
-        if(f.isDirectory()) {
-            int totalSizeOfFolder = 0;
+        if (f.isDirectory()) {
+            long totalSizeOfFolder = 0;
             for (File childFile : sortedChildren(f)) {
                 totalSizeOfFolder += totalSize(childFile);
             }
@@ -60,11 +60,11 @@ public final class FileScanner {
      */
     public static int countFiles(File f) {
         // Base case:      a file counts as 1
-        if(f.isFile()) {
+        if (f.isFile()) {
             return 1;
         }
         // Recursive case: a folder's file count is the sum of each file child
-        if(f.isDirectory()) {
+        if (f.isDirectory()) {
             int numberFilesInFolder = 0;
             for (File childFile : sortedChildren(f)) {
                 numberFilesInFolder += countFiles(childFile);
@@ -86,25 +86,25 @@ public final class FileScanner {
      * Recursive case: a folder's depth is the largest depth out of each child plus itself
      */
     public static int maxDepth(File f) {
-        if(f.isFile()) {
+        if (f.isFile()) {
             // Files don't increase the depth
             return 0;
         }
-        if(f.isDirectory()) {
+        if (f.isDirectory()) {
             // Empty folder doesn't increase the depth, so by default 0 until proven otherwise
             int maximumDepthFoundInFolder = 0;
             File[] childFiles = sortedChildren(f);
             // If a child has a larger depth, set the depth to that
             for (File childFile : childFiles) {
                 int depthOfThisChild = maxDepth(childFile);
-                if(maximumDepthFoundInFolder < depthOfThisChild) {
+                if (maximumDepthFoundInFolder < depthOfThisChild) {
                     maximumDepthFoundInFolder = depthOfThisChild;
                 }
             }
             // A folder that contains stuff counts as 1 by default
             // It's odd that the test cases don't test for empty folder inside of empty folder
             // Personally, empty folders should count because of that, but it is what it is
-            if(childFiles.length > 0) {
+            if (childFiles.length > 0) {
                 maximumDepthFoundInFolder += 1;
             }
             return maximumDepthFoundInFolder;
@@ -133,9 +133,9 @@ public final class FileScanner {
      */
     private static void collect(File dir, String prefix, List<FileInfo> out) {
         for (File childFile : sortedChildren(dir)) {
-            if(childFile.isFile()) {
+            if (childFile.isFile()) {
                 out.add(new FileInfo(prefix + childFile.getName(), totalSize(childFile)));
-            } else if(childFile.isDirectory()) {
+            } else if (childFile.isDirectory()) {
                 collect(childFile, prefix + childFile.getName() + "/", out);
             }
         }
@@ -164,8 +164,8 @@ public final class FileScanner {
      */
     private static String humanSize(double value, int unit) {
         // "%.0f %s" for bytes, "%.1f %s" for every other unit
-        if(value < 1024) {
-            if(unit == 0) {
+        if (value < 1024) {
+            if (unit == 0) {
                 return String.format(Locale.US, "%.0f %s", value, UNITS[unit]);
             } else {
                 return String.format(Locale.US, "%.1f %s", value, UNITS[unit]);
@@ -194,9 +194,13 @@ public final class FileScanner {
         return sb.toString();
     }
 
+    /**
+     * Base case:      a file
+     * Recursive case: a folder that has contents so long as depth < maxDepth
+     */
     private static void tree(File f, int depth, int maxDepth, StringBuilder sb) {
         // use System.lineSeparator() at the end of each line
-        if(f.isFile()) {
+        if (f.isFile()) {
             // Equivalent String.format:
             // %s%s (%s)%n
             sb.append("  ".repeat(depth));
@@ -205,7 +209,7 @@ public final class FileScanner {
             sb.append(humanSize(totalSize(f)));
             sb.append(")");
             sb.append(System.lineSeparator());
-        } else if(f.isDirectory()) {
+        } else if (f.isDirectory()) {
             // Equivalent String.format:
             // %s%s/ (%s)%n
             sb.append("  ".repeat(depth));
@@ -214,9 +218,9 @@ public final class FileScanner {
             sb.append(humanSize(totalSize(f)));
             sb.append(")");
             sb.append(System.lineSeparator());
-            if(depth < maxDepth) {
+            if (depth < maxDepth) {
                 for (File childFile : sortedChildren(f)) {
-                    tree(childFile, depth+1, maxDepth, sb);
+                    tree(childFile, depth + 1, maxDepth, sb);
                 }
             }
         }
