@@ -197,13 +197,8 @@ public final class FileScanner {
     private static void tree(File f, int depth, int maxDepth, StringBuilder sb) {
         // use System.lineSeparator() at the end of each line
         if(f.isFile()) {
-            // This totally could have been a String.format with %n
-            // but it's funnier to use System.lineSeparator()
-            // (could have also done %s -> System.lineSeparator()...)
-            // JUSTICE FOR SYSTEM.LINESEPARATOR()!!!
-            // Equivalent String.format(s) so I don't get bonked:
+            // Equivalent String.format:
             // %s%s (%s)%n
-            // %s%s (%s)%s
             sb.append("  ".repeat(depth));
             sb.append(f.getName());
             sb.append(" (");
@@ -211,9 +206,8 @@ public final class FileScanner {
             sb.append(")");
             sb.append(System.lineSeparator());
         } else if(f.isDirectory()) {
-            // Equivalent String.format(s) so I don't get bonked:
+            // Equivalent String.format:
             // %s%s/ (%s)%n
-            // %s%s/ (%s)%s
             sb.append("  ".repeat(depth));
             sb.append(f.getName());
             sb.append("/ (");
