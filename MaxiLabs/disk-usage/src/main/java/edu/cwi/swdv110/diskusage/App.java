@@ -17,16 +17,79 @@ public class App {
         File root = Path.of(input.isEmpty() ? "." : input).toAbsolutePath().normalize().toFile();
         if (!root.isDirectory()) {
             System.out.println("Not a folder: " + root);
+            sc.close();
             return;
         }
 
-        // TODO Part 5a: print the tree, 2 levels deep
-        // TODO Part 5b: print "Files: N   Total: X   Deepest nesting: N levels"
-        // TODO Part 5c: print the 5 largest files (size right-aligned in 10 columns, then path)
-        // TODO Part 5d: count files per extension in a TreeMap<String, Integer>
+        // Part 5a: print the tree, 2 levels deep
+        System.out.println(FileScanner.tree(root, 2));
+
+        // Part 5b: print "Files: N   Total: X   Deepest nesting: N levels"
+
+        System.out.printf("Files: %d   Total: %s   Deepest nesting: %d levels%n", FileScanner.countFiles(root), FileScanner.humanSize(FileScanner.totalSize(root)), FileScanner.maxDepth(root));
+
+        // Part 5c: print the 5 largest files (size right-aligned in 10 columns, then path)
+
+        // Empty line for formatting purposes
+        System.out.println();
+        System.out.println("Largest files:");
+        for (FileInfo largeFile : Algorithms.largest(FileScanner.listAll(root), 5)) {
+            System.out.printf("%-10s %s%n", FileScanner.humanSize(largeFile.size()), largeFile.path());
+        }
+
+        // Part 5d: count files per extension in a TreeMap<String, Integer>
         //               (files without a '.' count as "(none)") and print the map
-        // TODO Part 5e: loop – 'quit' ends, 'race' calls sortRace(), anything else is a path
+
+        // Empty line for formatting purposes
+        System.out.println();
+
+        Map<String, Integer> extensionCounts = new TreeMap<>();
+        for (FileInfo file : FileScanner.listAll(root)) {
+            String fileName = file.path().substring(file.path().lastIndexOf('/') + 1);
+            // Ignore all dots up until the last '/' is found, if any.
+            // This means we're ignoring all "hidden" folders.
+            int extensionDotIndex = fileName.lastIndexOf('.');
+
+            // Files that start with a dot are "hidden" files and should be ignored
+            // Files that end with a dot are weird as hell and should also be ignored
+            if (extensionDotIndex > 0 && extensionDotIndex < fileName.length() - 1) {
+                // Add 1 per occurrence
+                extensionCounts.merge(fileName.substring(extensionDotIndex + 1).toLowerCase(), 1, Integer::sum);
+            }
+        }
+        System.out.println("Files by extension: " + extensionCounts);
+
+        // Part 5e: loop – 'quit' ends, 'race' calls sortRace(), anything else is a path
         //               to look up with binarySearchByPath (sort the list BY_PATH first!)
+        input = "";
+        List<FileInfo> sorted = FileScanner.listAll(root).stream().sorted(Algorithms.BY_PATH).toList();
+        while (!input.equals("quit")) {
+            // Empty line for formatting purposes
+            System.out.println();
+
+            System.out.print("Find path (or 'race' / 'quit'): ");
+            input = sc.hasNextLine() ? sc.nextLine().trim() : "";
+            if (!input.isBlank()) {
+                switch (input) {
+                case "quit":
+                    break;
+                case "race":
+                    sortRace();
+                    break;
+                default:
+                    int indexOfInput = Algorithms.binarySearchByPath(sorted, input);
+                    if (indexOfInput == -1) {
+                        System.out.println("Not found");
+                    } else {
+                        System.out.printf("Found at index %d: %s%n", indexOfInput, FileScanner.humanSize(sorted.get(indexOfInput).size()));
+                    }
+                    break;
+                }
+            }
+
+        }
+
+        sc.close();
     }
 
     /** GIVEN: times both sorts on random data that doubles in size each round. */
