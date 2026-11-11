@@ -25,7 +25,19 @@ public final class Algorithms {
     /** Returns a NEW sorted list (don't modify the input). O(n²). */
     public static <T> List<T> selectionSort(List<T> list, Comparator<T> cmp) {
         List<T> a = new ArrayList<>(list);
-        // TODO
+        
+        for (int i = 0; i < a.size() - 1; i++) {
+            int minIndex = i;
+            // find the smallest remaining item
+            for (int j = i + 1; j < a.size(); j++) {
+                if (cmp.compare(a.get(j), a.get(minIndex)) < 0) {
+                    minIndex = j;
+                }
+            }
+            T temp = a.get(i); // swap into place
+            a.set(i, a.get(minIndex));
+            a.set(minIndex, temp);
+        }
         return a;
     }
 
@@ -36,13 +48,29 @@ public final class Algorithms {
      * The merge must be STABLE: when two items compare equal, take the one from the left half.
      */
     public static <T> List<T> mergeSort(List<T> list, Comparator<T> cmp) {
-        // TODO
-        return new ArrayList<>(list);
+        List<T> a = new ArrayList<>(list);
+        
+        if (a.size() < 2) return a; // base case
+        int mid = a.size() / 2;
+        List<T> left = a.subList(0, mid);
+        List<T> right = a.subList(mid, a.size());
+        left = mergeSort(left, cmp); // recursive cases
+        right = mergeSort(right, cmp);
+        a = merge(left, right, cmp);
+        return a;
     }
 
     private static <T> List<T> merge(List<T> left, List<T> right, Comparator<T> cmp) {
-        // TODO
-        return new ArrayList<>();
+        List<T> a = new ArrayList<>();
+
+        int i = 0, j = 0, k = 0;
+        while (i < left.size() && j < right.size()) {
+            a.add(k++, (cmp.compare(left.get(i), right.get(j)) <= 0 ? left.get(i++) : right.get(j++)));
+        }
+        while (i < left.size()) a.add(k++, left.get(i++));
+        while (j < right.size()) a.add(k++, right.get(j++));
+
+        return a;
     }
 
     /**
@@ -50,18 +78,34 @@ public final class Algorithms {
      * Returns the index of the file with this exact path, or -1.
      */
     public static int binarySearchByPath(List<FileInfo> sortedByPath, String path) {
-        // TODO call the helper with the whole range
-        return -1;
+        // call the helper with the whole range
+        return binarySearch(sortedByPath, path, 0, sortedByPath.size() - 1);
     }
 
     private static int binarySearch(List<FileInfo> a, String path, int low, int high) {
-        // TODO – base case: low > high
-        return -1;
+        // base case: low > high
+        if(low > high) {
+            return -1;
+        }
+
+        int middleIndex = (low+high)/2;
+        if(a.get(middleIndex).path().equals(path)) {
+            return middleIndex;
+        }
+
+        // Sadly need another check to find our missing element, sooo it's time to use recursion
+        if(path.compareTo(a.get(middleIndex).path()) > 0) {
+            // If the target element is bigger than the currently found item
+            // Search the larger half
+            return binarySearch(a, path, middleIndex+1, high);
+        } else {
+            // Otherwise search the lower half
+            return binarySearch(a, path, low, middleIndex-1);
+        }
     }
 
     /** The n largest files (fewer if there aren't n), using YOUR mergeSort. */
     public static List<FileInfo> largest(List<FileInfo> files, int n) {
-        // TODO
-        return new ArrayList<>();
+        return mergeSort(files, BY_SIZE_DESC).stream().limit(n).toList();
     }
 }
