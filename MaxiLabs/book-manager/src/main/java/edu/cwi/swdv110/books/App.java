@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.Year;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 /** Console front end. Notice: there is NO SQL in this class – it only talks to the DAO. */
@@ -19,7 +21,7 @@ public class App {
             Database.initialize(URL);
             if (dao.getAll().isEmpty()) {
                 Database.runScript(URL, Path.of("seed.sql"));
-                System.out.println("New database – loaded seed.sql");
+                System.out.println("New database - loaded seed.sql");
             }
         } catch (SQLException e) {
             System.out.println("Could not open the database: " + e.getMessage());
@@ -74,28 +76,82 @@ public class App {
     }
 
     /**
-     * TODO Part 5: remove '-' and ' ', then require exactly 10 or 13 digits.
+     * Part 5: remove '-' and ' ', then require exactly 10 or 13 digits.
      * Otherwise throw IllegalArgumentException("ISBN must be 10 or 13 digits").
      *   "978-0-13-468599-1" -> "9780134685991"
      */
     static String cleanIsbn(String raw) {
-        return raw;
+        String cleaned = raw.replace("-", "").replace(" ", "");
+        if (cleaned.length() != 10 && cleaned.length() != 13) {
+            throw new IllegalArgumentException("ISBN must be 10 or 13 digits");
+        }
+        return cleaned;
     }
 
     /**
-     * TODO Part 5: prompt for ISBN (cleanIsbn), title, author (both required) and year
+     * Part 5: prompt for ISBN (cleanIsbn), title, author (both required) and year
      * (1450 through Year.now().getValue()), then dao.add(...) and print "Added with id N".
      * New books start unread with rating 0.
      */
     private static void addBook() throws SQLException {
+        try {
+            String isbn = cleanIsbn(prompt("ISBN"));
+            String title = prompt("Title");
+            String author = prompt("Author");
+            String yearInput = prompt("Year");
+            Year year = Year.parse(yearInput);
+            if (year.isBefore(Year.of(1450)) || year.isAfter(Year.now())) {
+                throw new IllegalArgumentException("Year is not in a valid range...");
+            }
+            int id = dao.add(new Book(0, isbn, title, author, year.getValue(), 0, false));
+            System.out.printf("Added with id %d%n", id);
+        } catch (DateTimeParseException ex) {
+            System.out.println("Invalid Input: " + ex);
+        } catch (IllegalArgumentException ex) {
+            System.out.println("Invalid Input: " + ex);
+        }
     }
 
     /**
-     * TODO Part 5: find the book by ISBN ("No book with that ISBN" if missing), then prompt
+     * Part 5: find the book by ISBN ("No book with that ISBN" if missing), then prompt
      * for a new title and author showing the current value in [brackets]; pressing Enter
      * keeps the current value. Build a new Book with the SAME id and call dao.update.
      */
     private static void editBook() throws SQLException {
+        String isbn = cleanIsbn(prompt("ISBN to edit"));
+        Optional<Book> bookOpt = dao.findByIsbn(isbn);
+        if (bookOpt.isEmpty()) {
+            System.out.println("No book with that ISBN");
+            return;
+        }
+        Book book = bookOpt.get();
+        boolean doesUpdateExist = false;
+
+        String newTitle = prompt("Title [" + book.title() + "]");
+        if (newTitle.isBlank()) {
+            newTitle = book.title();
+        } else {
+            doesUpdateExist = true;
+        }
+        
+        String newAuthor = prompt("Author [" + book.author() + "]");
+        if (newAuthor.isBlank()) {
+            newAuthor = book.author();
+        } else {
+            doesUpdateExist = true;
+        }
+
+        // No point in running the SQL if we're just keeping the defaults
+        if (doesUpdateExist) {
+            Book newBook = new Book(book.id(), book.isbn(), newTitle, newAuthor, book.year(), book.rating(), book.read());
+            // If something happened that makes our update fail,
+            // then clearly someone in another thread or process deleted the book
+            // in between the time we accessed the database to get the book and now.
+            // Either way, if this somehow returns false, then there's no book to update.
+            System.out.println(dao.update(newBook) ? "Updated" : "No book with that ISBN");
+        } else {
+            System.out.println("No changes to make. Keeping current values.");
+        }
     }
 
     private static void print(List<Book> books) {
