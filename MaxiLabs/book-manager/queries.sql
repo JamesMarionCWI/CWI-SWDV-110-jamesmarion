@@ -43,15 +43,16 @@ Result: 8 rows returned in 4ms
 At line 1:
 */
 SELECT
-    COUNT(*) AS num_books,
-    author
+    author,
+    COUNT(*) AS num_books
 FROM books
 GROUP BY author
 ORDER BY num_books DESC;
 
 -- 6. Average rating of rated books (rating > 0)
 SELECT AVG(rating) AS avg_rating
-FROM books;
+FROM books
+WHERE rating > 0;
 
 -- 7. Mark 'Sapiens' as read with a rating of 4
 /*
