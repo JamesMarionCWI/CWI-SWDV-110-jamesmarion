@@ -46,4 +46,4 @@ buildNumber.properties
 .classpath
 
 # SQLite Database
-.db
+*.db
