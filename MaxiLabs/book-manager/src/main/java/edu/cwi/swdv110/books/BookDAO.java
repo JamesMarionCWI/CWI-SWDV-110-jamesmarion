@@ -127,12 +127,12 @@ public class BookDAO {
     public boolean update(Book b) throws SQLException {
         String sql = """
                 UPDATE books
-                SET 
-                isbn = ?, 
-                title = ?, 
-                author = ?, 
-                year = ?, 
-                rating = ?, 
+                SET
+                isbn = ?,
+                title = ?,
+                author = ?,
+                year = ?,
+                rating = ?,
                 is_read = ?
                 WHERE id = ?
                 """;
@@ -153,12 +153,12 @@ public class BookDAO {
      * IllegalArgumentException BEFORE touching the database. True if a row changed.
      */
     public boolean markRead(String isbn, int rating) throws SQLException {
-        if(rating < 1 || rating > 5) {
+        if (rating < 1 || rating > 5) {
             throw new IllegalArgumentException("Rating outside valid range of 1-5!");
         }
         String sql = """
                 UPDATE books
-                SET rating = ?, 
+                SET rating = ?,
                 is_read = 1
                 WHERE isbn = ?
                 """;
@@ -188,13 +188,43 @@ public class BookDAO {
      * Let SQL do the work: GROUP BY, COUNT(*), ORDER BY. Use a LinkedHashMap to keep that order.
      */
     public Map<String, Integer> countByAuthor() throws SQLException {
-        // TODO
-        return new LinkedHashMap<>();
+        Map<String, Integer> authorCounts = new LinkedHashMap<>();
+        String sql = """
+                SELECT
+                    author,
+                    COUNT(*) AS num_books
+                FROM books
+                GROUP BY author
+                ORDER BY num_books DESC, author
+                """;
+
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    authorCounts.put(rs.getString("author"), rs.getInt("num_books"));
+                }
+            }
+        }
+
+        return authorCounts;
     }
 
     /** Average rating of RATED books (rating > 0); 0.0 if none are rated. Use SQL's AVG. */
     public double averageRating() throws SQLException {
-        // TODO
+        String sql = """
+                SELECT AVG(rating) AS avg_rating
+                FROM books
+                WHERE rating > 0
+                """;
+
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    return rs.getDouble("avg_rating");
+                }
+            }
+        }
+
         return 0.0;
     }
 }
