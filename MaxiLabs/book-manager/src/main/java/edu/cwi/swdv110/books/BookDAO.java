@@ -101,14 +101,51 @@ public class BookDAO {
      * A duplicate ISBN makes the database throw SQLException – let it propagate.
      */
     public int add(Book b) throws SQLException {
-        // TODO
-        return -1;
+        String sql = """
+                INSERT INTO books
+                (isbn, title, author, year, rating, is_read)
+                VALUES
+                (?, ?, ?, ?, ?, ?)
+                """;
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, b.isbn());
+            ps.setString(2, b.title());
+            ps.setString(3, b.author());
+            ps.setInt(4, b.year());
+            ps.setInt(5, b.rating());
+            ps.setInt(6, b.read() ? 1 : 0);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return -1;
+        }
     }
 
     /** Updates every column of the row whose id = b.id(). True if a row changed. */
     public boolean update(Book b) throws SQLException {
-        // TODO
-        return false;
+        String sql = """
+                UPDATE books
+                SET 
+                isbn = ?, 
+                title = ?, 
+                author = ?, 
+                year = ?, 
+                rating = ?, 
+                is_read = ?
+                WHERE id = ?
+                """;
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, b.isbn());
+            ps.setString(2, b.title());
+            ps.setString(3, b.author());
+            ps.setInt(4, b.year());
+            ps.setInt(5, b.rating());
+            ps.setInt(6, b.read() ? 1 : 0);
+            ps.setInt(7, b.id());
+            return ps.executeUpdate() == 1;
+        }
     }
 
     /**
@@ -116,14 +153,32 @@ public class BookDAO {
      * IllegalArgumentException BEFORE touching the database. True if a row changed.
      */
     public boolean markRead(String isbn, int rating) throws SQLException {
-        // TODO
-        return false;
+        if(rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating outside valid range of 1-5!");
+        }
+        String sql = """
+                UPDATE books
+                SET rating = ?, 
+                is_read = 1
+                WHERE isbn = ?
+                """;
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, rating);
+            ps.setString(2, isbn);
+            return ps.executeUpdate() == 1;
+        }
     }
 
     /** Deletes by ISBN. True if a row was deleted. */
     public boolean delete(String isbn) throws SQLException {
-        // TODO
-        return false;
+        String sql = """
+                DELETE FROM books
+                WHERE isbn = ?
+                """;
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, isbn);
+            return ps.executeUpdate() == 1;
+        }
     }
 
     // ---------------- Part 4: reports ----------------
