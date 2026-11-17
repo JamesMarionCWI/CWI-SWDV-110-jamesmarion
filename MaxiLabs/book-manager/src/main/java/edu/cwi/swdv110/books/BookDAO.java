@@ -26,22 +26,46 @@ public class BookDAO {
 
     /** Helper: builds a Book from the CURRENT row of a ResultSet. is_read is stored as 0/1. */
     private Book toBook(ResultSet rs) throws SQLException {
-        // TODO Part 2
-        return null;
+        // Part 2
+        return new Book(rs.getInt("id"), rs.getString("isbn"), rs.getString("title"), rs.getString("author"), rs.getInt("year"), rs.getInt("rating"), rs.getBoolean("is_read"));
     }
 
     // ---------------- Part 2: reading ----------------
 
+    private List<Book> query(String sql, String... params) throws SQLException {
+        List<Book> books = new ArrayList<>();
+
+        try (Connection c = Database.connect(url); PreparedStatement ps = c.prepareStatement(sql)) {
+            // parameters are numbered from 1!
+            for (int i = 1; i <= params.length; i++) {
+                ps.setString(i, params[i - 1]);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    books.add(toBook(rs));
+                }
+            }
+        }
+
+        return books;
+    }
+
     /** All books ordered by title. */
     public List<Book> getAll() throws SQLException {
-        // TODO
-        return new ArrayList<>();
+        return query("""
+                SELECT id, isbn, title, author, year, rating, is_read
+                FROM books
+                ORDER BY title
+                """);
     }
 
     /** The book with this exact ISBN, or Optional.empty(). */
     public Optional<Book> findByIsbn(String isbn) throws SQLException {
-        // TODO
-        return Optional.empty();
+        List<Book> returnedBooks = query("""
+                SELECT id, isbn, title, author, year, rating, is_read
+                FROM books
+                WHERE isbn = ?""", isbn);
+        return returnedBooks.isEmpty() ? Optional.empty() : Optional.ofNullable(returnedBooks.get(0));
     }
 
     /**
@@ -50,14 +74,23 @@ public class BookDAO {
      *   ps.setString(1, "%" + term + "%");
      */
     public List<Book> search(String term) throws SQLException {
-        // TODO
-        return new ArrayList<>();
+        String likeTerm = "%" + term + "%";
+        return query("""
+                SELECT id, isbn, title, author, year, rating, is_read
+                FROM books
+                WHERE title LIKE ?
+                OR author LIKE ?
+                ORDER BY title""", likeTerm, likeTerm);
     }
 
     /** Books not yet read, ordered by title. */
     public List<Book> unread() throws SQLException {
-        // TODO
-        return new ArrayList<>();
+        return query("""
+                SELECT id, isbn, title, author, year, rating, is_read
+                FROM books
+                WHERE is_read = 0
+                ORDER BY title
+                """);
     }
 
     // ---------------- Part 3: writing ----------------
