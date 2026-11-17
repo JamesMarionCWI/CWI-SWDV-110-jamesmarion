@@ -1,5 +1,4 @@
 -- 1. Every book, newest first
-
 /*
 Result: 10 rows returned in 32ms
 At line 1:
@@ -50,6 +49,10 @@ GROUP BY author
 ORDER BY num_books DESC;
 
 -- 6. Average rating of rated books (rating > 0)
+/*
+Result: 1 rows returned in 3ms
+At line 2:
+*/
 SELECT AVG(rating) AS avg_rating
 FROM books
 WHERE rating > 0;
