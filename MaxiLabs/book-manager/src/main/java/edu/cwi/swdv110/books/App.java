@@ -133,7 +133,7 @@ public class App {
         } else {
             doesUpdateExist = true;
         }
-        
+
         String newAuthor = prompt("Author [" + book.author() + "]");
         if (newAuthor.isBlank()) {
             newAuthor = book.author();
